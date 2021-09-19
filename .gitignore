@@ -12,3 +12,6 @@
 
 # IDEs
 .idea
+
+# Developer
+.env

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::config::Config;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Database {
@@ -7,4 +8,8 @@ pub struct Database {
     pub max_conn: usize,
     pub conn_timeout: u64,
     pub idle_timeout: Option<u64>,
+}
+
+pub fn initialize(config: &Config) {
+
 }
