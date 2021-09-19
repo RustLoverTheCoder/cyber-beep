@@ -1,0 +1,14 @@
+version: '3'
+services:
+
+  beep-postgres:
+    image: postgres:latest
+    container_name: beep-postgres
+    restart: always
+    environment:
+      TZ: PRC # https://www.postgresql.org/docs/9.5/datatype-datetime.html#DATATYPE-TIMEZONES
+      POSTGRES_DB: server
+      POSTGRES_USER: server
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"

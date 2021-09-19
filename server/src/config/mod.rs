@@ -6,23 +6,24 @@ use figment::providers::{Env, Format, Serialized, Toml};
 use figment::value::{Dict, Map};
 use serde::{Deserialize, Serialize};
 
-use crate::config::database::Database;
-use crate::config::tracing::{Level, Tracing};
+use crate::config::database::DatabaseConfig;
+use crate::config::tracing::{Level, TracingConfig};
+use sea_orm::DatabaseConnection;
 
 mod tracing;
 mod database;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Config {
+pub struct ServerConfig {
     #[serde(skip)]
     pub profile: Profile,
     pub address: IpAddr,
     pub port: u16,
-    pub tracing: Tracing,
-    pub postgres: Database
+    pub tracing: TracingConfig,
+    pub postgres: DatabaseConfig
 }
 
-impl Config {
+impl ServerConfig {
     const DEBUG_PROFILE: Profile = Profile::const_new("debug");
 
     #[cfg(not(debug_assertions))]
@@ -35,12 +36,12 @@ impl Config {
     const DEFAULT_PROFILE: Profile = Self::RELEASE_PROFILE;
 }
 
-impl Config {
+impl ServerConfig {
     /// Extract configuration file
-    pub fn extract() -> anyhow::Result<Config> {
+    pub fn extract() -> anyhow::Result<ServerConfig> {
         dotenv::dotenv().ok();
 
-        let figment = Figment::from(Config::default())
+        let figment = Figment::from(ServerConfig::default())
             .merge(Toml::file(Env::var_or("SERVER_CONFIG", "server.toml")).nested())
             .merge(Env::prefixed("SERVER_").ignore(&["PROFILE"]).global())
             .select(Profile::from_env_or("SERVER_PROFILE", Self::DEFAULT_PROFILE));
@@ -54,19 +55,23 @@ impl Config {
         tracing::initialize(&self)
     }
 
-    fn debug_default() -> Config {
-        Config {
+    pub async fn init_database(&self) -> anyhow::Result<DatabaseConnection> {
+        database::initialize(&self.postgres).await
+    }
+
+    fn debug_default() -> ServerConfig {
+        ServerConfig {
             profile: Self::DEBUG_PROFILE,
             address: Ipv4Addr::new(127, 0, 0, 1).into(),
             port: 5000,
-            tracing: Tracing {
+            tracing: TracingConfig {
                 level: Level::INFO,
                 filter: None,
             },
-            postgres: Database {
+            postgres: DatabaseConfig {
                 url: "postgres://localhost/postgres".to_string(),
                 min_conn: None,
-                max_conn: num_cpus::get() * 4,
+                max_conn: (num_cpus::get() * 4) as u32,
                 conn_timeout: 5,
                 idle_timeout: None
             }
@@ -74,22 +79,22 @@ impl Config {
     }
 
     #[cfg(not(debug_assertions))]
-    fn release_default() -> Config {
-        Config {
+    fn release_default() -> ServerConfig {
+        ServerConfig {
             profile: Self::RELEASE_PROFILE,
-            ..Config::debug_default()
+            ..ServerConfig::debug_default()
         }
     }
 }
 
-impl Default for Config {
+impl Default for ServerConfig {
     fn default() -> Self {
-        #[cfg(debug_assertions)] { Config::debug_default() }
-        #[cfg(not(debug_assertions))] { Config::release_default() }
+        #[cfg(debug_assertions)] { ServerConfig::debug_default() }
+        #[cfg(not(debug_assertions))] { ServerConfig::release_default() }
     }
 }
 
-impl Provider for Config {
+impl Provider for ServerConfig {
     fn metadata(&self) -> Metadata {
         Metadata::named("Cyber-Beep-Config")
     }

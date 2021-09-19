@@ -1,13 +1,13 @@
-use anyhow::Context;
 use serde::{Deserialize, Serialize};
 pub use tracing::Level;
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::time::ChronoLocal;
 
-use crate::config::Config;
+use crate::config::ServerConfig;
+use tracing_log::LogTracer;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Tracing {
+pub struct TracingConfig {
     /// Structured logging global level
     #[serde(with = "serde_with::rust::display_fromstr")]
     pub level: Level,
@@ -15,14 +15,15 @@ pub struct Tracing {
     pub filter: Option<String>,
 }
 
-pub fn initialize(config: &Config) -> anyhow::Result<()> {
+pub fn initialize(config: &ServerConfig) -> anyhow::Result<()> {
     let tracing = &config.tracing;
-    let mut filter = EnvFilter::from_default_env().add_directive(tracing.level.into());
-    if let Some(directive) = &tracing.filter {
-        let directive = directive.parse()
-            .context(format!("[{}]::tracing_filter Invalid filter instruction", config.profile))?;
-        filter = filter.add_directive(directive);
-    };
+    LogTracer::init()?;
+
+    let filter = match &tracing.filter {
+        None => EnvFilter::from_default_env(),
+        Some(directives) => EnvFilter::try_new(directives)?,
+    }.add_directive(tracing.level.into());
+
     let subscriber = tracing_subscriber::fmt()
         .with_env_filter(filter)
         .with_timer(ChronoLocal::rfc3339())

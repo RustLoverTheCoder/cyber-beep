@@ -1298,6 +1298,7 @@ dependencies = [
  "chrono",
  "futures",
  "futures-util",
+ "log",
  "rust_decimal",
  "sea-orm-macros",
  "sea-query",
@@ -1450,9 +1451,13 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "sqlx-core",
  "thiserror",
  "tokio",
+ "tower",
+ "tower-http",
  "tracing",
+ "tracing-log",
  "tracing-subscriber",
 ]
 
@@ -1865,6 +1870,7 @@ dependencies = [
  "pin-project",
  "tower-layer",
  "tower-service",
+ "tracing",
 ]
 
 [[package]]
