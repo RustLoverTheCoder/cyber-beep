@@ -1,0 +1,10 @@
+[debug]
+address = "127.0.0.1"
+port = 5000
+tracing.filter = "server=debug"
+postgres.url = "postgres://root:root@localhost/beep"
+
+[release]
+address = "127.0.0.1"
+port = 5001
+tracing_filter = "server=info"
