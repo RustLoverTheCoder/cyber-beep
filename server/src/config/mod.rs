@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::database::DatabaseConfig;
 use crate::config::tracing::{Level, TracingConfig};
-use sea_orm::DatabaseConnection;
+use sea_orm::DbConn;
 
 mod tracing;
 mod database;
@@ -55,7 +55,7 @@ impl ServerConfig {
         tracing::initialize(&self)
     }
 
-    pub async fn init_database(&self) -> anyhow::Result<DatabaseConnection> {
+    pub async fn init_database(&self) -> anyhow::Result<DbConn> {
         database::initialize(&self.postgres).await
     }
 

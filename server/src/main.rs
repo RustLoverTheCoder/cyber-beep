@@ -6,6 +6,7 @@ use config::ServerConfig;
 
 mod config;
 mod web;
+mod entity;
 
 #[tokio::main]
 async fn main() {

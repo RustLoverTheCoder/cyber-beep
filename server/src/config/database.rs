@@ -1,8 +1,9 @@
 use std::time::Duration;
 
-use sea_orm::{DatabaseConnection, SqlxPostgresConnector};
+use sea_orm::{DbConn, SqlxPostgresConnector, DbErr};
 use serde::{Deserialize, Serialize};
 use sqlx_core::postgres::PgPoolOptions;
+use sea_orm::sea_query::TableCreateStatement;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DatabaseConfig {
@@ -13,7 +14,7 @@ pub struct DatabaseConfig {
     pub idle_timeout: Option<u64>,
 }
 
-pub async fn initialize(config: &DatabaseConfig) -> anyhow::Result<DatabaseConnection> {
+pub async fn initialize(config: &DatabaseConfig) -> anyhow::Result<DbConn> {
     let mut options = PgPoolOptions::new()
         .connect_timeout(Duration::from_secs(config.conn_timeout))
         .max_connections(config.max_conn);
@@ -24,5 +25,9 @@ pub async fn initialize(config: &DatabaseConfig) -> anyhow::Result<DatabaseConne
         options = options.min_connections(min);
     }
     let pool = options.connect(&config.url).await?;
-    Ok(SqlxPostgresConnector::from_sqlx_postgres_pool(pool))
+    let connection = SqlxPostgresConnector::from_sqlx_postgres_pool(pool);
+
+    // todo auto create table
+
+    Ok(connection)
 }

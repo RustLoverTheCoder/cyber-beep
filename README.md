@@ -2,11 +2,13 @@
 
 ## database
 
-> Database schema with a migration tool
-
 ```shell
+# Database schema with a migration tool
 cargo install sqlx-cli
+
+cargo install sea-orm-cli
 ```
+
 
 ## TODO
 

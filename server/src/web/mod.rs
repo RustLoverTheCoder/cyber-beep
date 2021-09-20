@@ -11,7 +11,7 @@ use axum::{
     Router,
     routing::BoxRoute
 };
-use sea_orm::DatabaseConnection;
+use sea_orm::DbConn;
 use tower::{BoxError, ServiceBuilder};
 use tower_http::trace::TraceLayer;
 
@@ -22,18 +22,18 @@ mod index;
 pub type SharedState = Arc<State>;
 
 pub struct State {
-   pub db: DatabaseConnection,
+   pub db: DbConn,
 }
 
 impl State {
-    fn build(db: DatabaseConnection) -> State {
+    fn build(db: DbConn) -> State {
         State {
             db
         }
     }
 }
 
-pub fn routes(db: DatabaseConnection) -> Router<BoxRoute> {
+pub fn routes(db: DbConn) -> Router<BoxRoute> {
     // Build our application by composing routes
     Router::new()
         .route("/", get(index))
