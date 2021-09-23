@@ -1,10 +1,9 @@
-use serde::{Deserialize, Serialize};
 pub use tracing::Level;
+use tracing_log::LogTracer;
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::time::ChronoLocal;
 
 use crate::config::ServerConfig;
-use tracing_log::LogTracer;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct TracingConfig {

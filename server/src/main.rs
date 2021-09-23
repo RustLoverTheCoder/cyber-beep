@@ -2,11 +2,8 @@ use std::net::SocketAddr;
 
 use tokio::time::Instant;
 
-use config::ServerConfig;
-
-mod config;
-mod web;
-mod entity;
+use server::app;
+use server::config::ServerConfig;
 
 #[tokio::main]
 async fn main() {
@@ -15,17 +12,14 @@ async fn main() {
     let config = ServerConfig::extract().unwrap();
 
     config.init_tracing().unwrap();
-
     tracing::debug!("{:?}", config);
 
     let db = config.init_database().await.unwrap();
 
-    let router = web::routes(db);
-
     let addr = SocketAddr::new(config.address, config.port);
     tracing::debug!("listening on {}", addr);
 
-    let server = axum::Server::bind(&addr).serve(router.into_make_service());
+    let server = axum::Server::bind(&addr).serve(app(db).into_make_service());
 
     tracing::info!("Started Server in {:.3?}", instant.elapsed());
     if let Err(err) = server.await {

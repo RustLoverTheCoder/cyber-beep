@@ -4,11 +4,10 @@ use anyhow::Context;
 use figment::{Error, Figment, Metadata, Profile, Provider};
 use figment::providers::{Env, Format, Serialized, Toml};
 use figment::value::{Dict, Map};
-use serde::{Deserialize, Serialize};
+use sea_orm::DbConn;
 
 use crate::config::database::DatabaseConfig;
 use crate::config::tracing::{Level, TracingConfig};
-use sea_orm::DbConn;
 
 mod tracing;
 mod database;

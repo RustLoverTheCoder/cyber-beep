@@ -1,9 +1,7 @@
 use std::time::Duration;
 
-use sea_orm::{DbConn, SqlxPostgresConnector, DbErr};
-use serde::{Deserialize, Serialize};
+use sea_orm::{DbConn, SqlxPostgresConnector};
 use sqlx_core::postgres::PgPoolOptions;
-use sea_orm::sea_query::TableCreateStatement;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DatabaseConfig {
