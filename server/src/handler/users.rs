@@ -15,7 +15,6 @@ fn validate_payload<T: Validate>(payload: &T) -> Result<()> {
 pub async fn initialize(
     Json(input): Json<InitInput>,
     Extension(_): Extension<DbConn>) -> ApiResult<()> {
-    // Check input
-    input.validate();
+    validate_payload(&input)?;
     Ok(())
 }

@@ -2,5 +2,5 @@
 address = "127.0.0.1"
 port = 5000
 postgres.url = "postgres://server:123456@localhost:5432/server"
-tracing.filter = "server=debug,sea_orm=debug"
+tracing.filter = "axum=trace,server=debug,sea_orm=debug"
 tracing.level = "info"
