@@ -11,6 +11,7 @@ use crate::config::tracing::{Level, TracingConfig};
 
 mod tracing;
 mod database;
+pub mod constants;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct ServerConfig {

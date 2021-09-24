@@ -12,6 +12,7 @@ cargo install sea-orm-cli
 
 ## TODO
 
-- [x] Custom configuration
+- [x] Custom config
 - [ ] Sea-orm 
 - [ ] Support cargo watch with `Listenfd`
+- [ ] Axum Cors config

@@ -2,10 +2,11 @@ use axum::http::StatusCode;
 use axum::Json;
 use serde_json::{json, Value};
 use thiserror::Error;
+use validator::ValidationErrors;
 
 #[derive(Debug, Error)]
 pub enum ServerError {
-    #[error("wrong user name or password")]
+    #[error("Wrong username or password")]
     UsernameOrPasswordError,
 
     #[error(transparent)]
@@ -18,7 +19,11 @@ pub enum ServerError {
     ValidationError(#[from] validator::ValidationErrors),
 }
 
+pub type Result<T> = std::result::Result<T, ServerError>;
+
 pub type ApiError = (StatusCode, Json<Value>);
+
+pub type ApiResult<T> = std::result::Result<T, ApiError>;
 
 impl From<ServerError> for ApiError {
     fn from(err: ServerError) -> Self {

@@ -6,7 +6,7 @@ use std::convert::Infallible;
 use std::time::Duration;
 
 use axum::{AddExtensionLayer, BoxError, Router};
-use axum::handler::get;
+use axum::handler::{get, post};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::BoxRoute;
@@ -14,14 +14,19 @@ use sea_orm::DbConn;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
-use crate::handler::index::{index, ping};
+use crate::handler::{
+    index::{index, ping},
+    users::initialize,
+};
 
 pub mod config;
 pub mod handler;
-mod entity;
+mod domain;
 mod error;
+mod utils;
 
 pub fn app(db: DbConn) -> Router<BoxRoute> {
+    // Build middleware stack
     let middleware_stack = ServiceBuilder::new()
         .timeout(Duration::from_secs(10))
         .layer(TraceLayer::new_for_http())
@@ -31,6 +36,7 @@ pub fn app(db: DbConn) -> Router<BoxRoute> {
     Router::new()
         .route("/", get(index))
         .route("/ping", get(ping))
+        .route("/init", post(initialize))
         .layer(middleware_stack)
         .handle_error(handle_error)
         .boxed()

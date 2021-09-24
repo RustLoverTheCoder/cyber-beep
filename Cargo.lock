@@ -1477,6 +1477,8 @@ dependencies = [
  "dotenv",
  "figment",
  "num_cpus",
+ "once_cell",
+ "regex",
  "sea-orm",
  "serde",
  "serde_json",
