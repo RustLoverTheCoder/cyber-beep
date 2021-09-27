@@ -1,8 +1,7 @@
-use axum::http::StatusCode;
-use axum::Json;
-use serde_json::{json, Value};
+use axum::body::Body;
+use axum::http::{Response, StatusCode};
+use axum::response::IntoResponse;
 use thiserror::Error;
-use validator::ValidationErrors;
 
 #[derive(Debug, Error)]
 pub enum ServerError {
@@ -19,21 +18,26 @@ pub enum ServerError {
     ValidationError(#[from] validator::ValidationErrors),
 }
 
-pub type Result<T> = std::result::Result<T, ServerError>;
+pub type ApiResult<T> = anyhow::Result<T, ServerError>;
 
-pub type ApiError = (StatusCode, Json<Value>);
+impl IntoResponse for ServerError {
+    type Body = Body;
+    type BodyError = <Self::Body as axum::body::HttpBody>::Error;
 
-pub type ApiResult<T> = std::result::Result<T, ApiError>;
-
-impl From<ServerError> for ApiError {
-    fn from(err: ServerError) -> Self {
-        let status = match err {
-            ServerError::ValidationError(_) => StatusCode::BAD_REQUEST,
-            ServerError::UsernameOrPasswordError => StatusCode::UNAUTHORIZED,
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
+    fn into_response(self) -> Response<Self::Body> {
+        let (status_code, body) = match self {
+            ServerError::UsernameOrPasswordError => {
+                tracing::warn!("UsernameOrPasswordError");
+                (StatusCode::UNAUTHORIZED, Body::from(self.to_string()))
+            }
+            ServerError::ValidationError(_) => {
+                let message = format!("Input validation error: [{}]", self).replace("\n", ", ");
+                tracing::debug!("{}", message);
+                (StatusCode::BAD_REQUEST, Body::from(message))
+            }
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, Body::from("Internal Server Error"))
         };
 
-        let payload = json!({"message": err.to_string()});
-        (status, Json(payload))
+        Response::builder().status(status_code).body(body).unwrap()
     }
 }

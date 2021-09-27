@@ -9,8 +9,6 @@ create table users
     nickname       varchar     not null,
     bio            varchar null,
     image          varchar null,
-    email_verified boolean     not null default false,
-    active         boolean     not null default true,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
 );

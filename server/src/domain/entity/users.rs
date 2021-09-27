@@ -20,8 +20,6 @@ pub struct Model {
     pub nickname: String,
     pub bio: Option<String>,
     pub image: Option<String>,
-    pub email_verified: bool,
-    pub active: bool,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
 }
@@ -35,8 +33,6 @@ pub enum Column {
     Nickname,
     Bio,
     Image,
-    EmailVerified,
-    Active,
     CreatedAt,
     UpdatedAt,
 }
@@ -67,8 +63,6 @@ impl ColumnTrait for Column {
             Self::Nickname => ColumnType::String(None).def(),
             Self::Bio => ColumnType::String(None).def().null(),
             Self::Image => ColumnType::String(None).def().null(),
-            Self::EmailVerified => ColumnType::Boolean.def(),
-            Self::Active => ColumnType::Boolean.def(),
             Self::CreatedAt => ColumnType::TimestampWithTimeZone.def(),
             Self::UpdatedAt => ColumnType::TimestampWithTimeZone.def(),
         }

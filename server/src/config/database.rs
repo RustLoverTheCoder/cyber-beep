@@ -24,8 +24,5 @@ pub async fn initialize(config: &DatabaseConfig) -> anyhow::Result<DbConn> {
     }
     let pool = options.connect(&config.url).await?;
     let connection = SqlxPostgresConnector::from_sqlx_postgres_pool(pool);
-
-    // todo auto create table
-
     Ok(connection)
 }
