@@ -11,6 +11,7 @@ use crate::config::tracing::{Level, TracingConfig};
 
 pub mod constants;
 mod database;
+pub mod shutdown;
 mod tracing;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]

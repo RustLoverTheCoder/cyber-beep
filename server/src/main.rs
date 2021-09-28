@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 
+use server::config::shutdown::shutdown_signal;
 use tokio::time::Instant;
 
 use server::app;
@@ -19,7 +20,9 @@ async fn main() {
     let addr = SocketAddr::new(config.address, config.port);
     tracing::debug!("listening on {}", addr);
 
-    let server = axum::Server::bind(&addr).serve(app(db).into_make_service());
+    let server = axum::Server::bind(&addr)
+        .serve(app(db).into_make_service())
+        .with_graceful_shutdown(shutdown_signal());
 
     tracing::info!("Started Server in {:.3?}", instant.elapsed());
     if let Err(err) = server.await {

@@ -1,4 +1,6 @@
-use axum::body::Body;
+use std::convert::Infallible;
+
+use axum::body::{Bytes, Full};
 use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
 use axum::Json;
@@ -6,7 +8,6 @@ use serde_json::json;
 use thiserror::Error;
 
 use crate::domain::payload::Payload;
-use axum::http::header::CONTENT_TYPE;
 
 #[derive(Debug, Error)]
 pub enum ServerError {
@@ -35,8 +36,8 @@ pub enum ServerError {
 pub type ApiResult<T> = anyhow::Result<Json<Payload<T>>, ServerError>;
 
 impl IntoResponse for ServerError {
-    type Body = Body;
-    type BodyError = <Self::Body as axum::body::HttpBody>::Error;
+    type Body = Full<Bytes>;
+    type BodyError = Infallible;
 
     fn into_response(self) -> Response<Self::Body> {
         let (status_code, message) = match self {
@@ -59,11 +60,7 @@ impl IntoResponse for ServerError {
             }
         };
 
-        let payload = json!({ "error": message }).to_string();
-        Response::builder()
-            .header(CONTENT_TYPE, "application/json")
-            .status(status_code)
-            .body(Body::from(payload))
-            .unwrap()
+        let payload = Json(json!({ "error": message }));
+        (status_code, payload).into_response()
     }
 }
