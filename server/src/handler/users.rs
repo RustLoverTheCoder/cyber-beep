@@ -28,7 +28,5 @@ pub async fn initialize(
 
     // todo password hash
 
-
-
     Ok(Payload::success("created".to_string()))
 }

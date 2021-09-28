@@ -57,7 +57,7 @@ impl ServerConfig {
     }
 
     pub fn init_tracing(&self) -> anyhow::Result<()> {
-        tracing::initialize(&self)
+        tracing::initialize(self)
     }
 
     pub async fn init_database(&self) -> anyhow::Result<DbConn> {
