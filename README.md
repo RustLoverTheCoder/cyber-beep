@@ -8,11 +8,3 @@ cargo install sqlx-cli
 
 cargo install sea-orm-cli
 ```
-
-
-## TODO
-
-- [x] Custom config
-- [ ] Sea-orm 
-- [ ] Support cargo watch with `Listenfd`
-- [ ] Axum Cors config

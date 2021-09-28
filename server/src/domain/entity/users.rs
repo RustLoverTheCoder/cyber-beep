@@ -11,7 +11,7 @@ impl EntityName for Entity {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel)]
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Serialize)]
 pub struct Model {
     pub id: i32,
     pub username: String,

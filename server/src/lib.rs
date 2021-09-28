@@ -5,11 +5,11 @@ use std::borrow::Cow;
 use std::convert::Infallible;
 use std::time::Duration;
 
-use axum::{AddExtensionLayer, BoxError, Router};
 use axum::handler::{get, post};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::BoxRoute;
+use axum::{AddExtensionLayer, BoxError, Router};
 use sea_orm::DbConn;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
@@ -20,9 +20,9 @@ use crate::handler::{
 };
 
 pub mod config;
-pub mod handler;
 mod domain;
 mod error;
+pub mod handler;
 mod utils;
 
 pub fn app(db: DbConn) -> Router<BoxRoute> {
@@ -47,5 +47,8 @@ fn handle_error(error: BoxError) -> Result<impl IntoResponse, Infallible> {
         return Ok((StatusCode::REQUEST_TIMEOUT, Cow::from("Request Timeout")));
     }
 
-    Ok((StatusCode::INTERNAL_SERVER_ERROR, Cow::from("Internal Server Error")))
+    Ok((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Cow::from("Internal Server Error"),
+    ))
 }

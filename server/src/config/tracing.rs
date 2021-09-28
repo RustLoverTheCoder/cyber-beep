@@ -1,7 +1,7 @@
 pub use tracing::Level;
 use tracing_log::LogTracer;
-use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt::time::ChronoLocal;
+use tracing_subscriber::EnvFilter;
 
 use crate::config::ServerConfig;
 
@@ -21,7 +21,8 @@ pub fn initialize(config: &ServerConfig) -> anyhow::Result<()> {
     let filter = match &tracing.filter {
         None => EnvFilter::from_default_env(),
         Some(directives) => EnvFilter::try_new(directives)?,
-    }.add_directive(tracing.level.into());
+    }
+    .add_directive(tracing.level.into());
 
     let subscriber = tracing_subscriber::fmt()
         .with_env_filter(filter)

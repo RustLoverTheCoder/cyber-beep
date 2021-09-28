@@ -1,17 +1,17 @@
 use std::net::{IpAddr, Ipv4Addr};
 
 use anyhow::Context;
-use figment::{Error, Figment, Metadata, Profile, Provider};
 use figment::providers::{Env, Format, Serialized, Toml};
 use figment::value::{Dict, Map};
+use figment::{Error, Figment, Metadata, Profile, Provider};
 use sea_orm::DbConn;
 
 use crate::config::database::DatabaseConfig;
 use crate::config::tracing::{Level, TracingConfig};
 
-mod tracing;
-mod database;
 pub mod constants;
+mod database;
+mod tracing;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct ServerConfig {
@@ -20,7 +20,7 @@ pub struct ServerConfig {
     pub address: IpAddr,
     pub port: u16,
     pub tracing: TracingConfig,
-    pub postgres: DatabaseConfig
+    pub postgres: DatabaseConfig,
 }
 
 impl ServerConfig {
@@ -44,9 +44,14 @@ impl ServerConfig {
         let figment = Figment::from(ServerConfig::default())
             .merge(Toml::file(Env::var_or("SERVER_CONFIG", "server.toml")).nested())
             .merge(Env::prefixed("SERVER_").ignore(&["PROFILE"]).global())
-            .select(Profile::from_env_or("SERVER_PROFILE", Self::DEFAULT_PROFILE));
+            .select(Profile::from_env_or(
+                "SERVER_PROFILE",
+                Self::DEFAULT_PROFILE,
+            ));
 
-        let mut config = figment.extract::<Self>().context("Failed to extract configuration file")?;
+        let mut config = figment
+            .extract::<Self>()
+            .context("Failed to extract configuration file")?;
         config.profile = figment.profile().clone();
         Ok(config)
     }
@@ -73,8 +78,8 @@ impl ServerConfig {
                 min_conn: None,
                 max_conn: (num_cpus::get() * 4) as u32,
                 conn_timeout: 5,
-                idle_timeout: None
-            }
+                idle_timeout: None,
+            },
         }
     }
 
@@ -89,8 +94,14 @@ impl ServerConfig {
 
 impl Default for ServerConfig {
     fn default() -> Self {
-        #[cfg(debug_assertions)] { ServerConfig::debug_default() }
-        #[cfg(not(debug_assertions))] { ServerConfig::release_default() }
+        #[cfg(debug_assertions)]
+        {
+            ServerConfig::debug_default()
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            ServerConfig::release_default()
+        }
     }
 }
 
@@ -108,5 +119,3 @@ impl Provider for ServerConfig {
         Some(self.profile.clone())
     }
 }
-
-

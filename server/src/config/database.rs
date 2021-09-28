@@ -1,7 +1,10 @@
+use std::str::FromStr;
 use std::time::Duration;
 
 use sea_orm::{DbConn, SqlxPostgresConnector};
-use sqlx_core::postgres::PgPoolOptions;
+use sqlx_core::connection::ConnectOptions;
+use sqlx_core::postgres::{PgConnectOptions, PgPoolOptions};
+use tracing::log::LevelFilter;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DatabaseConfig {
@@ -13,16 +16,21 @@ pub struct DatabaseConfig {
 }
 
 pub async fn initialize(config: &DatabaseConfig) -> anyhow::Result<DbConn> {
+    let mut connect_options = PgConnectOptions::from_str(&config.url)?;
+
+    connect_options.log_statements(LevelFilter::Off);
+
     let mut options = PgPoolOptions::new()
         .connect_timeout(Duration::from_secs(config.conn_timeout))
         .max_connections(config.max_conn);
+
     if let Some(min) = config.idle_timeout {
         options = options.idle_timeout(Some(Duration::from_secs(min)));
     }
     if let Some(min) = config.min_conn {
         options = options.min_connections(min);
     }
-    let pool = options.connect(&config.url).await?;
-    let connection = SqlxPostgresConnector::from_sqlx_postgres_pool(pool);
-    Ok(connection)
+
+    let pool = options.connect_with(connect_options).await?;
+    Ok(SqlxPostgresConnector::from_sqlx_postgres_pool(pool))
 }
