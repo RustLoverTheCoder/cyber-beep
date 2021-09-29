@@ -3,6 +3,7 @@ use axum::Json;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Payload<T> {
     pub code: u16,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<T>,
     pub message: String,
 }
