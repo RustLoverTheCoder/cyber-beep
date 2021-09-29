@@ -1,7 +1,7 @@
 [package]
+edition = "2018"
 name = "server"
 version = "0.1.0"
-edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -39,13 +39,13 @@ tracing-log = "0.1.2"
 tracing-subscriber = "0.2.24"
 
 # async and dynamic orm
-sqlx-core = "0.5.7"
-sea-orm = { version = "0.2.3", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros", "debug-print"], default-features = false }
 chrono = { version = "0.4.19", features = ["serde"] }
+sea-orm = { version = "0.2.3", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros", "debug-print"], default-features = false }
+sqlx-core = "0.5.7"
 
 # tools
 num_cpus = "1.13.0"
-validator = { version = "0.14.0", features = ["derive"] }
 once_cell = "1.8.0"
 regex = "1.5.4"
 rust-argon2 = "0.8.3"
+validator = { version = "0.14.0", features = ["derive"] }

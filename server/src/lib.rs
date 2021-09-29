@@ -22,7 +22,7 @@ use crate::handler::{
 pub mod config;
 mod domain;
 mod error;
-pub mod handler;
+mod handler;
 mod utils;
 
 pub fn app(db: DbConn) -> Router<BoxRoute> {
