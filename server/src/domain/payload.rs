@@ -8,28 +8,11 @@ pub struct Payload<T> {
 }
 
 impl<T> Payload<T> {
-    pub fn ok() -> Json<Payload<T>> {
+    pub fn success(t: Option<T>) -> Json<Payload<T>> {
         Payload {
+            data: t,
             code: 2000,
-            data: None,
             message: "success".to_string(),
-        }
-        .into()
-    }
-
-    pub fn success(t: T) -> Json<Payload<T>> {
-        Payload {
-            data: Some(t),
-            ..Payload::ok().0
-        }
-        .into()
-    }
-
-    pub fn failure(code: u16, message: String) -> Json<Payload<T>> {
-        Payload {
-            code,
-            message,
-            data: None,
         }
         .into()
     }

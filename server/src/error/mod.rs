@@ -11,29 +11,23 @@ use crate::domain::payload::Payload;
 
 #[derive(Debug, Error)]
 pub enum ServerError {
-    #[error("Wrong username or password")]
-    UsernameOrPasswordError,
-
     #[error("Cannot be re-initialized")]
     ReInitializedError,
 
     #[error(transparent)]
-    AxumTypedHeaderError(#[from] axum::extract::rejection::TypedHeaderRejection),
+    AxumFormError(#[from] axum::extract::rejection::FormRejection),
 
     #[error(transparent)]
-    AxumExtensionError(#[from] axum::extract::rejection::ExtensionRejection),
+    AxumJsonError(#[from] axum::extract::rejection::JsonRejection),
 
     #[error(transparent)]
     ValidationError(#[from] validator::ValidationErrors),
 
     #[error(transparent)]
     DatabaseError(#[from] sea_orm::DbErr),
-
-    #[error(transparent)]
-    InternalServerError(#[from] anyhow::Error),
 }
 
-pub type ApiResult<T> = anyhow::Result<Json<Payload<T>>, ServerError>;
+pub type ApiResult<T> = std::result::Result<Json<Payload<T>>, ServerError>;
 
 impl IntoResponse for ServerError {
     type Body = Full<Bytes>;
@@ -41,10 +35,6 @@ impl IntoResponse for ServerError {
 
     fn into_response(self) -> Response<Self::Body> {
         let (status_code, message) = match self {
-            ServerError::UsernameOrPasswordError => {
-                tracing::warn!("UsernameOrPasswordError");
-                (StatusCode::UNAUTHORIZED, self.to_string())
-            }
             ServerError::ValidationError(_) => {
                 let message = format!("Input validation error: [{}]", self).replace("\n", ", ");
                 tracing::debug!("{}", message);

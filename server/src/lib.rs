@@ -22,6 +22,7 @@ use crate::handler::{
 pub mod config;
 mod domain;
 mod error;
+mod extract;
 mod handler;
 mod utils;
 
